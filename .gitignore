@@ -25,13 +25,14 @@ libsecurity/src/otp/test/test_otp
 libsecurity/src/password/test/test_password
 libsecurity/src/salt/test/test_salt
 libsecurity/src/storage/test/test_secureStorage
-libsecurity/src/utils/test/test_syslog
+libsecurity/src/utils/test/test_utils
 
 libsecurity/src/examples/aclExample/aclUsage
 libsecurity/src/examples/appExample/iotClient
 libsecurity/src/examples/fullExample/example
 libsecurity/src/examples/otpExample/otpExample
 libsecurity/src/examples/secureStorageExample/secureStorageUsage
+libsecurity/src/build/res
 
 *.gcda
 *.gcno

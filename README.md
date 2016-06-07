@@ -4,9 +4,9 @@
 
 ### The goals of libsecurity are:
 Secure "things" that connect to the internet by providing a set of security libraries/services that fulfill the following requirements:
-1.  Complete (from a security point of view)
-2.  Can be easily integrated with existing IoTs' software.
-3.  Optimized for the IoTs' run time environment
+  1.  Complete (from a security point of view)
+  2.  Can be easily integrated with existing IoTs' software.
+  3.  Optimized for the IoTs' run time environment
 
 ### Language
 - Implemented in c/c++
