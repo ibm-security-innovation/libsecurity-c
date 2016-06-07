@@ -1,0 +1,78 @@
+rm -f ./*.[oa]
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -D _POSIX_C_SOURCE=200809L -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include utils.c -o ./utils.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -D _POSIX_C_SOURCE=200809L -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include itemsList.c -o ./itemsList.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -D _POSIX_C_SOURCE=200809L -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include sysLog.c -o ./sysLog.o
+sysLog.c: In function ‘Syslog_Log’:
+sysLog.c:186:3: warning: function might be possible candidate for ‘gnu_printf’ format attribute [-Wsuggest-attribute=format]
+   vsnprintf(str, sizeof(str), format, arglist);
+   ^
+sysLog.c:186:3: warning: function might be possible candidate for ‘gnu_printf’ format attribute [-Wsuggest-attribute=format]
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -D _POSIX_C_SOURCE=200809L -pedantic -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include crypto.c -o ./crypto.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti -D _POSIX_C_SOURCE=200809L -pedantic -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include hwAdapters.cpp -o ./hwAdapters.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti -D _POSIX_C_SOURCE=200809L -pedantic -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include fileAdapters.cpp -o ./fileAdapters.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti -D _POSIX_C_SOURCE=200809L -pedantic -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include networkAdapters.cpp -o ./networkAdapters.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -D _POSIX_C_SOURCE=200809L -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include dtlsClient.c -o ./dtlsClient.o
+ar rcs ./libutils.a ./itemsList.o ./sysLog.o ./crypto.o ./hwAdapters.o ./fileAdapters.o ./networkAdapters.o ./dtlsClient.o ./utils.o
+rm -f ./*.[oa]
+gcc  -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../include secureStorage.c -o ./secureStorage.o
+ar rcs ./libstorage.a ./secureStorage.o
+rm -f *.o
+gcc -DLINUX  -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../../deps -I../../../../deps/crypto/nacl-20110221/build/all/include/amd64 -I. -I../../../include secureStorageUsage.c -o secureStorageUsage.o
+gcc  secureStorageUsage.o ../../../../deps/crypto/nacl-20110221/build/all/lib/amd64/randombytes.o -o secureStorageUsage -L../../../../deps/hashtab -L../../../../deps/crypto/nacl-20110221/build/all/lib/amd64 -L../../../src/storage -L../../../src/utils -lstorage -lutils -lnacl -lm -lmyhash
+==2664== Memcheck, a memory error detector
+==2664== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==2664== Using Valgrind-3.10.1 and LibVEX; rerun with -h for copyright info
+==2664== Command: ./secureStorageUsage
+==2664== 
+==2664== Conditional jump or move depends on uninitialised value(s)
+==2664==    at 0x401CC3: isSecretValid (secureStorage.c:165)
+==2664==    by 0x4029A7: SecureStorage_AddItem (secureStorage.c:405)
+==2664==    by 0x401109: addWiFiInfoToStorage (secureStorageUsage.c:23)
+==2664==    by 0x40144E: main (secureStorageUsage.c:75)
+==2664== 
+==2664== Conditional jump or move depends on uninitialised value(s)
+==2664==    at 0x404C23: Utils_GetCharArrayLen (utils.c:287)
+==2664==    by 0x401D09: isSecretValid (secureStorage.c:169)
+==2664==    by 0x4029A7: SecureStorage_AddItem (secureStorage.c:405)
+==2664==    by 0x401109: addWiFiInfoToStorage (secureStorageUsage.c:23)
+==2664==    by 0x40144E: main (secureStorageUsage.c:75)
+==2664== 
+==2664== Use of uninitialised value of size 8
+==2664==    at 0x404C46: Utils_GetCharArrayLen (utils.c:289)
+==2664==    by 0x401D09: isSecretValid (secureStorage.c:169)
+==2664==    by 0x4029A7: SecureStorage_AddItem (secureStorage.c:405)
+==2664==    by 0x401109: addWiFiInfoToStorage (secureStorageUsage.c:23)
+==2664==    by 0x40144E: main (secureStorageUsage.c:75)
+==2664== 
+==2664== Use of uninitialised value of size 8
+==2664==    at 0x40E691: hfirst (in /home/ravids/libSecurity/src/iotsec/libsecurity-c/libsecurity/src/examples/secureStorageUsage/secureStorageUsage)
+==2664==    by 0x4016BB: calcHash (secureStorage.c:56)
+==2664==    by 0x403393: calcHMac (secureStorage.c:578)
+==2664==    by 0x403B4A: SecureStorage_StoreSecureStorageToFile (secureStorage.c:711)
+==2664==    by 0x4011A5: storeToFile (secureStorageUsage.c:32)
+==2664==    by 0x401464: main (secureStorageUsage.c:76)
+==2664== 
+==2664== 
+==2664== Process terminating with default action of signal 11 (SIGSEGV)
+==2664==  Bad permissions for mapped region at address 0x40F67D
+==2664==    at 0x40E695: hfirst (in /home/ravids/libSecurity/src/iotsec/libsecurity-c/libsecurity/src/examples/secureStorageUsage/secureStorageUsage)
+==2664==    by 0x4016BB: calcHash (secureStorage.c:56)
+==2664==    by 0x403393: calcHMac (secureStorage.c:578)
+==2664==    by 0x403B4A: SecureStorage_StoreSecureStorageToFile (secureStorage.c:711)
+==2664==    by 0x4011A5: storeToFile (secureStorageUsage.c:32)
+==2664==    by 0x401464: main (secureStorageUsage.c:76)
+************ Add wifi password to the storage: ************
+Ravid: add item 'HomeWifiPassword' val 'home1@#4'
+Error while adding key 'HomeWifiPassword' with value 'home1@#4' to the storage, erorr AES key length is not valid (26), secret length must be exactly 32 Bytes
+==2664== 
+==2664== HEAP SUMMARY:
+==2664==     in use at exit: 0 bytes in 0 blocks
+==2664==   total heap usage: 2 allocs, 2 frees, 39 bytes allocated
+==2664== 
+==2664== All heap blocks were freed -- no leaks are possible
+==2664== 
+==2664== For counts of detected and suppressed errors, rerun with: -v
+==2664== Use --track-origins=yes to see where uninitialised values come from
+==2664== ERROR SUMMARY: 4 errors from 4 contexts (suppressed: 0 from 0)
+./run.sh: line 21:  2664 Segmentation fault      valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./secureStorageUsage
+rm -f *.o

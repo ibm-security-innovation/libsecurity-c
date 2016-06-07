@@ -1,0 +1,355 @@
+#include "libsecurity/utils/utils_int.h"
+#include "libsecurity/utils/sysLog_int.h"
+#include "libsecurity/utils/hwAdapters.h"
+#include "libsecurity/utils/fileAdapters.h"
+
+static int16_t NumOfLogMessages = 3;
+
+static const char *mallocStrFmt = "%s len = %d";
+static const char *freeStrFmt = "%s";
+static const char *fopenStrFmt = "file name: '%s' mode :'%s'";
+static const char *fcloseStrFmt = "fclose file: '%s'";
+static const char *removeStrFmt = "remove file: '%s'";
+
+#ifdef INTERNAL_LOG
+static char *logFilePath = "/var/log/user.log";
+static char *syslogServerIpStr = "127.0.0.1";
+#else // external log
+static char *syslogServerIpStr = "9.147.6.74";
+#endif
+
+#if defined(MBED_OS)
+static char *cacertFile = "./cacert.pem";
+static int16_t syslogServerPort = 8514;
+#else
+static char *cacertFile = NULL;
+static int16_t syslogServerPort = 514;
+#endif
+
+STATIC bool getLastLineOfFile(char *file, char *line, int16_t maxLen) {
+  int16_t len = 0;
+  bool ret = false;
+  char c;
+  FILE *ifp = fopen(file, "r");
+
+  if (ifp == NULL) return false;
+
+  fseek(ifp, -1, SEEK_END); // next to last char, last is EOF
+  c = fgetc(ifp);
+  while (c == '\n') {
+    fseek(ifp, -2, SEEK_CUR);
+    c = fgetc(ifp);
+  }
+  while (c != '\n') {
+    fseek(ifp, -2, SEEK_CUR);
+    ++len;
+    c = fgetc(ifp);
+  }
+  fseek(ifp, 1, SEEK_CUR);
+
+  if (len > maxLen) len = maxLen;
+  if (fgets(line, len, ifp) != NULL)
+    ret = true;
+  else
+    ret = false;
+  fclose(ifp);
+  return ret;
+}
+
+STATIC bool testIpStr() {
+  int16_t i = 0, len = 0, address[4];
+  int32_t tmp = 0;
+  bool pass = true;
+  char *notValidIp[] = { NULL, "1", "2.3", "1.2.3", "1.2.3.4.5", "256.1.2.3", "2.-1.3.4", "", "!.2.3.4", "1.@.3.4", "1.2.a.4", "1.2.3.x" };
+  char *validIp[] = { "1.2.3.4", "0.0.0.0", "255.255.255.255" };
+  char str[MAX_IP_STR_LEN];
+
+  len = sizeof(notValidIp) / sizeof(char *);
+  for (i = 0; i < len; i++) {
+    if (Utils_IsIpStrValid(notValidIp[i]) == true) {
+      printf("Error: test fail, invalid IP '%s' pass\n", notValidIp[i]);
+      pass = false;
+    }
+  }
+  len = sizeof(validIp) / sizeof(char *);
+  for (i = 0; i < len; i++) {
+    if (Utils_GetIpV4Address(validIp[i], address, &tmp) == false) {
+      printf("Error: test fail, valid IP '%s' fail\n", validIp[i]);
+      pass = false;
+    }
+    snprintf(str, sizeof(str), "%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
+    if (strncmp(validIp[i], str, MAX_IP_STR_LEN) != 0) {
+      printf("Error: test fail, valid IP '%s' was converted to '%s'\n", validIp[i], str);
+      pass = false;
+    }
+  }
+  return pass;
+}
+
+// Generate a log message, send it to the syslog and compare with the syslog
+// file
+STATIC bool testSyslogLogMessage() {
+  int16_t i = 0, j = 0;
+  bool pass = false, ret = false;
+  char expStr[ERR_STR_LEN], testStr[ERR_STR_LEN], hostName[ERR_STR_LEN];
+  char *appName = "testSyslogLogMessage", *testStrFmt = "Test %d with %s", *strParam = "lalala";
+
+  printf("syslog server ip is %s, cacert file name '%s'\n", syslogServerIpStr, cacertFile);
+  Syslog_SetDtls(false);
+  if (Syslog_OpenLog(syslogServerIpStr, syslogServerPort, cacertFile, syslogServerIpStr) == false) {
+    printf("Error: %s\n", errStr);
+    return false;
+  }
+  Syslog_UpdateAppName(appName);
+  for (j = SYSLOG_USE_MAC_ADDRESS_AS_HOST_IDX; j <= SYSLOG_USE_IP_ADDRESS_AS_HOST_IDX; j++) {
+    Syslog_UpdateHostNameType(j);
+    SyslogTest_GetHostName(hostName, ERR_STR_LEN);
+    for (i = 0; i < NumOfLogMessages; i++) {
+      snprintf(testStr, ERR_STR_LEN, testStrFmt, i, strParam);
+      snprintf(expStr, ERR_STR_LEN, "%s %s %s %s %s %s %s", SYSLOG_NIL_STR, hostName, appName, SYSLOG_NIL_STR, SYSLOG_LOG_STR, SYSLOG_NIL_STR, testStr);
+      ret = Syslog_Log(i % (SevirityDebug + 1), "Test %d with %s\n", i, "lalala");
+      if (ret == false) printf("testSyslogLogMessage Error: %s\n", errStr);
+      pass |= ret;
+      HwAdapters_Sleep(1, 0);
+#ifdef INTERNAL_LOG
+      char line[ERR_STR_LEN];
+      if (getLastLineOfFile(logFilePath, line, ERR_STR_LEN) == false) {
+        printf("Error: can't read the last line of the log file '%s'\n", logFilePath);
+        pass = false;
+        break;
+      }
+      if (strstr(line, expStr) == NULL) {
+        printf("Error: expected string '%s' is not in the read log line '%s'\n", expStr, line);
+        pass = false;
+        break;
+      }
+#endif
+      // printf("Line: '%s'\nExp str '%s'\n", line, expStr);
+    }
+    if (pass == false) break;
+  }
+  Syslog_CloseLog();
+  return pass;
+}
+
+// Generate a mule message, send it to the syslog and compare with the syslog
+// file
+STATIC bool testSyslogMuleMatrics() {
+  int16_t i = 0, idx = 0;
+  bool pass = false, ret = false;
+  char expStr[ERR_STR_LEN], testStr[ERR_STR_LEN], hostName[ERR_STR_LEN];
+  char *appName = "testSyslogMuleMatrics", *testStrFmt = "[%s@%d %s=\"%d\"]", *mulePath = "a.b.c.d";
+
+  printf("Mule syslog server ip is %s\n", syslogServerIpStr);
+  Syslog_SetDtls(false);
+  if (Syslog_OpenLog(syslogServerIpStr, syslogServerPort, cacertFile, syslogServerIpStr) == false) {
+    printf("Error: %s\n", errStr);
+    return false;
+  }
+  Syslog_UpdateAppName(appName);
+  Syslog_UpdateHostNameType(SYSLOG_USE_IP_ADDRESS_AS_HOST_IDX);
+  SyslogTest_GetHostName(hostName, ERR_STR_LEN);
+  for (i = 0; i < NumOfLogMessages; i++) {
+    idx = i * 10 + i % MuleMax + 1;
+    snprintf(testStr, ERR_STR_LEN, testStrFmt, SYSLOG_MULE_STR, i + 1, mulePath, idx);
+    snprintf(expStr, ERR_STR_LEN, "%s %s %s %s %s %s", SYSLOG_NIL_STR, hostName, appName, SYSLOG_NIL_STR, SYSLOG_MULE_STR, testStr);
+    ret = Syslog_Mule(i % MuleMax + 1, mulePath, idx);
+    if (ret == false) printf("testSyslogMuleMatrics Error: %s\n", errStr);
+    pass |= ret;
+    HwAdapters_Sleep(1, 0);
+#ifdef INTERNAL_LOG
+    char line[ERR_STR_LEN];
+    if (getLastLineOfFile(logFilePath, line, ERR_STR_LEN) == false) {
+      printf("Error: can't read the last line of the log file '%s'\n", logFilePath);
+      pass = false;
+      break;
+    }
+    if (strstr(line, expStr) == NULL) {
+      printf("Error: expected string '%s' is not in the read log line '%s'\n", expStr, line);
+      pass = false;
+      break;
+    }
+#endif
+  }
+  Syslog_CloseLog();
+  return pass;
+}
+
+STATIC bool testSetAppName() {
+  int16_t i = 0, ret, expect;
+  bool pass = true;
+  char str[6], *expStr = NULL;
+
+  for (i = 1; i < 255; i++) {
+    snprintf(str, sizeof(str), "a%c1", i);
+    ret = Syslog_UpdateAppName(str);
+    expect = ((i >= 65 && i <= 90) || (i >= 97 && i <= 122) || (i >= 48 && i <= 57));
+    expStr = "legal";
+    if (expect == false) expStr = "illegal";
+    if (ret != expect) {
+      printf("Test fail: error: character '%c' (%d) is %s but the ret is %d\n", i, i, expStr, ret);
+      pass = false;
+    }
+  }
+  return pass;
+}
+
+STATIC void dontExit(const char *msg) {
+  snprintf(errStr, sizeof(errStr), "%s", msg);
+}
+
+STATIC bool testAbortCb() {
+  const char *msg = "Print and don't exit";
+
+  Utils_AbortCallBack(dontExit);
+  Utils_Abort(msg);
+  return (strncmp(msg, errStr, strlen(msg)) == 0);
+}
+
+STATIC bool myMalloc(void **ptr, int16_t len) {
+  snprintf(errStr, sizeof(errStr), mallocStrFmt, *ptr, len);
+  return true;
+}
+
+STATIC bool testMyMalloc() {
+  int16_t len = 90;
+  char *ptr = "my malloc";
+  char str[ERR_STR_LEN];
+
+  Utils_MallocCallBack(myMalloc);
+  Utils_Malloc((void **)&ptr, len);
+  snprintf(str, sizeof(str), mallocStrFmt, ptr, len);
+  Utils_MallocCallBack(NULL);
+  return (strncmp(str, errStr, strlen(str)) == 0);
+}
+
+STATIC void myFree(void *ptr) {
+  snprintf(errStr, sizeof(errStr), freeStrFmt, ptr);
+}
+
+STATIC bool testMyFree() {
+  char *ptr = "my free";
+  char str[ERR_STR_LEN];
+
+  Utils_FreeCallBack(myFree);
+  Utils_Free((void *)ptr);
+  snprintf(str, sizeof(str), freeStrFmt, ptr);
+  return (strncmp(str, errStr, strlen(str)) == 0);
+}
+
+STATIC FILE *myFopen(const char *fileName, const char *mode) {
+  snprintf(errStr, sizeof(errStr), fopenStrFmt, fileName, mode);
+  return NULL;
+}
+
+STATIC bool testMyFopen() {
+  char *ptr = "fopen my file", *mode = "write";
+  char str[ERR_STR_LEN];
+
+  Utils_FopenCallBack(myFopen);
+  Utils_Fopen(ptr, mode);
+  snprintf(str, sizeof(str), fopenStrFmt, ptr, mode);
+  Utils_FopenCallBack(NULL);
+  return (strncmp(str, errStr, strlen(str)) == 0);
+}
+
+STATIC int myFclose(FILE *stream) {
+  snprintf(errStr, sizeof(errStr), fcloseStrFmt, (char *)stream);
+  return 1;
+}
+
+STATIC bool testMyFclose() {
+  char *ptr = "fclose my file";
+  char str[ERR_STR_LEN];
+
+  Utils_FcloseCallBack(myFclose);
+  Utils_Fclose((FILE *)ptr);
+  snprintf(str, sizeof(str), fcloseStrFmt, ptr);
+  Utils_FcloseCallBack(NULL);
+  return (strncmp(str, errStr, strlen(str)) == 0);
+}
+
+STATIC int myRemove(const char *fileName) {
+  snprintf(errStr, sizeof(errStr), removeStrFmt, fileName);
+  return 1;
+}
+
+STATIC bool testMyRemoveFile() {
+  char *ptr = "remove file";
+  char str[ERR_STR_LEN];
+
+  Utils_RemoveFileCallBack(myRemove);
+  Utils_RemoveFile(ptr);
+  snprintf(str, sizeof(str), removeStrFmt, ptr);
+  Utils_RemoveFileCallBack(NULL);
+  return (strncmp(str, errStr, strlen(str)) == 0);
+}
+
+// mbed file system must be tested
+STATIC bool testReadWriteToFile() {
+#ifndef MBED_OS
+  return true;
+#endif
+  const char *fileName = "sdtest.txt", *str = "Hello fun SD Card World!";
+  char readStr[100];
+  FILE *fp = NULL;
+
+  if ((fp = FileAdapters_Fopen(fileName, "w")) == NULL) {
+    printf("testReadWriteToFile fail: error: Could not open file '%s' for write\n", fileName);
+    return false;
+  }
+  fprintf(fp, "%s", str);
+  FileAdapters_Fclose(fp);
+
+  if ((fp = FileAdapters_Fopen(fileName, "r")) == NULL) {
+    printf("testReadWriteToFile fail: error: Could not open file '%s' for read\n", fileName);
+    return false;
+  }
+  if (Utils_Fgets(readStr, sizeof(readStr), fp) == NULL) {
+    printf("testReadWriteToFile fail: error: Could not read from file\n");
+    return false;
+  }
+  if (strncmp(str, readStr, strlen(str)) != 0) {
+    printf("testReadWriteToFile fail: stored string '%s' != read string '%s'\n", str, readStr);
+    return false;
+  }
+  FileAdapters_Fclose(fp);
+  FileAdapters_Remove(fileName);
+  return true;
+}
+
+
+#ifdef MBED_OS
+int16_t testSyslog()
+#else
+int main()
+#endif
+{
+  bool pass = true;
+  int16_t i = 0, len = 0;
+  char *res = NULL;
+
+  Utils_TestFuncS callFunc[] = { { "testAbortCb", testAbortCb },
+                                 { "testMyMalloc", testMyMalloc },
+                                 { "testMyFree", testMyFree },
+                                 { "testMyFopen", testMyFopen },
+                                 { "testMyFclose", testMyFclose },
+                                 { "testMyRemoveFile", testMyRemoveFile },
+                                 { "testIpStr", testIpStr },
+                                 { "testReadWriteToFile", testReadWriteToFile },
+                                 { "testSyslogMuleMatrics", testSyslogMuleMatrics },
+                                 { "testSyslogLogMessage", testSyslogLogMessage },
+                                 { "testSetAppName", testSetAppName } };
+
+  len = sizeof(callFunc) / sizeof(Utils_TestFuncS);
+
+  for (i = 0; i < len; i++) {
+    if ((callFunc[i]).testFunc() == false) {
+      res = "fail";
+      pass = false;
+    } else
+      res = "pass";
+    printf("Test %s:'%s' %s\n", __FILE__, callFunc[i].name, res);
+  }
+  return pass;
+}

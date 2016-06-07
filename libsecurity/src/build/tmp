@@ -1,0 +1,41 @@
+****** compile using gcc ******
+Test  storage/test
+Test  entity/test
+Test  acl/test
+Test  otp/test
+Test  salt/test
+Test  password/test
+Test  accounts/test
+Test  utils/test
+Formatting code
+Formatting  utils
+Formatting  storage
+Formatting  entity
+Formatting  acl
+Formatting  otp
+Formatting  salt
+Formatting  password
+Formatting  accounts
+Verify code
+check  utils
+check  entity
+check  salt
+check  password
+check  accounts
+check  storage
+check  acl
+check  otp
+check  examples/fullExample
+check  examples/secureStorageExample
+check  examples/aclExample
+check  examples/otpExample
+check  utils/test
+check  entity/test
+check  salt/test
+check  password/test
+check  accounts/test
+check  storage/test
+check  acl/test
+check  otp/test
+full results are in:  /home/ravids/libSecurity/src/iotsec/libsecurity-c/libsecurity/src/build/res/full-res
+summary results are in:  /home/ravids/libSecurity/src/iotsec/libsecurity-c/libsecurity/src/build/res/res

@@ -1,0 +1,8 @@
+{
+  "uvisor": {
+    "present" : 1
+  },
+  "mbedtls": {
+    "user-config-file": "\"source/config/mbedtlsConfig.h\""
+  }
+}

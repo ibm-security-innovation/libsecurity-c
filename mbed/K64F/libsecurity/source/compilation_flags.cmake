@@ -1,0 +1,1 @@
+add_definitions( -DMBED_OS -DMBEDTLS_CRYPTO -DSTATIC_F )

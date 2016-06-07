@@ -1,0 +1,24 @@
+{
+  "name": "libsecurity",
+  "version": "2.1.0",
+  "description": "Security library for the Internet Of Things",
+  "keywords": [
+    "libsecurity",
+    "Internet Of Things",
+    "mbed"
+  ],
+  "author": "Ravid Sagy",
+  "homepage": "http://www.ibm.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mbed-drivers": "*",
+    "mbedtls": "*",
+    "mbed-drivers": "*",
+    "sal-iface-eth": "*",
+    "sal-driver-lwip-k64f-eth": "*",
+    "sockets": "*"
+  },
+  "targetDependencies": {},
+  "bin": "./source",
+  "private": true
+}

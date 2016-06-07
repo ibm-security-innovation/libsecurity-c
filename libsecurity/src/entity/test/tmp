@@ -1,0 +1,79 @@
+rm -f ./*.o
+rm -f ../../bin/libutils.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g   -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 utils.c -o ./utils.o
+utils.c: In function ‘Utils_SetCharArrayLen’:
+utils.c:310:7: warning: unused variable ‘tmpLen’ [-Wunused-variable]
+   int tmpLen = len;
+       ^
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g   -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 itemsList.c -o ./itemsList.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g   -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 sysLog.c -o ./sysLog.o
+sysLog.c: In function ‘Syslog_Log’:
+sysLog.c:194:3: warning: function might be possible candidate for ‘gnu_printf’ format attribute [-Wsuggest-attribute=format]
+   vsnprintf(str, sizeof(str), format, arglist);
+   ^
+sysLog.c:194:3: warning: function might be possible candidate for ‘gnu_printf’ format attribute [-Wsuggest-attribute=format]
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g   -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 crypto.c -o ./crypto.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c++11 -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 hwAdapters.cpp -o ./hwAdapters.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c++11 -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 fileAdapters.cpp -o ./fileAdapters.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c++11 -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 networkAdapters.cpp -o ./networkAdapters.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c++11 -g -D _POSIX_C_SOURCE=200809L -fno-exceptions -fno-rtti  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 dtlsClient.cpp -o ./dtlsClient.o
+ar rcs ../../bin/libutils.a ./itemsList.o ./sysLog.o ./crypto.o ./hwAdapters.o ./fileAdapters.o ./networkAdapters.o ./dtlsClient.o ./utils.o
+rm -f ./*.o
+rm -f ../../bin/libentity.a
+gcc  -c -std=c99 -g  -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 entity.c -o ./entity.o
+gcc  -c -std=c99 -g  -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 entityManager.c -o ./entityManager.o
+ar rcs ../../bin/libentity.a ./entity.o ./entityManager.o
+rm -f ./*.o
+rm -f ./libsalt.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 salt.c -o ./salt.o
+ar rcs ../../bin/libsalt.a ./salt.o
+rm -f ./*.o
+rm -f ../../bin/libpassword.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 password.c -o ./password.o
+ar rcs ../../bin/libpassword.a ./password.o
+rm -f ./*.o
+rm -f ../../bin/libaccounts.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 accounts.c -o ./accounts.o
+ar rcs ../../bin/libaccounts.a ./accounts.o
+rm -f ./*.o
+rm -f ../../bin/libopt.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 otp.c -o ./otp.o
+otp.c: In function ‘generateHmac’:
+otp.c:155:3: warning: format not a string literal, argument types not checked [-Wformat-nonliteral]
+   snprintf(*val, otp->Digits, fmt, code);
+   ^
+otp.c:155:3: warning: format not a string literal, argument types not checked [-Wformat-nonliteral]
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 otpUser.c -o ./otpUser.o
+ar rcs ../../bin/libotp.a ./otp.o ./otpUser.o
+rm -f ./*.o
+rm -f ../../bin/libacl.a
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 acl.c -o ./acl.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -Wmissing-prototypes -Wstrict-prototypes -Wbad-function-cast -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 aclEntry.c -o ./aclEntry.o
+ar rcs ../../bin/libacl.a ./acl.o ./aclEntry.o
+rm -f ./*.o
+rm -f ../../bin/libstorage.a
+gcc  -DLINUX_OS -DNaCl_CRYPTO -DSTATIC_F  -Wall -Wextra -Wmissing-declarations -Wpointer-arith -Wwrite-strings -Wcast-qual -Wcast-align -Wformat-security  -Wformat-nonliteral -Wmissing-format-attribute -Winline -W -funsigned-char -Wstrict-overflow -fno-strict-aliasing -Wno-missing-field-initializers -c -std=c99 -g  -I../../../deps -I. -I../../include -I../../../deps/crypto/mbedtls/include -I../../../deps/crypto/nacl-20110221/build/all/include/amd64 secureStorage.c -o ./secureStorage.o
+ar rcs ../../bin/libstorage.a ./secureStorage.o
+rm -f *.o
+gcc -DLINUX_OS -DNaCl_CRYPTO -c -std=c99 -g  -DSTATIC_F -I../../../../deps -I. -I../../../include -I../../../../deps/crypto/mbedtls/include -I../../../../deps/crypto/nacl-20110221/build/all/include/amd64 test_entity.c -o test_entity.o
+gcc  test_entity.o ../../../../deps/crypto/nacl-20110221/build/all/lib/amd64/randombytes.o -o test_entity -L../../../../deps/hashtab -L../../../../deps/crypto/mbedtls/library -L../../../bin -L../../../../deps/crypto/nacl-20110221/build/all/lib/amd64 -lentity -lstorage -lacl -laccounts -lotp -lpassword -lsalt -lutils -lnacl -lmbedtls -lmbedx509 -lmbedcrypto -lm -lmyhash
+==12724== Memcheck, a memory error detector
+==12724== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==12724== Using Valgrind-3.10.1 and LibVEX; rerun with -h for copyright info
+==12724== Command: ./test_entity
+==12724== 
+Ravid: OtpUser_Store write throttling key 'thr-Gr-2'a9' val '10 1 00000000 00000000 00000000 00000000 3 0 3600 00000000 00000000 -30 N.A.'
+Ravid: OtpUser_Store write throttling key 'thr-Gr-3'a9' val '10 1 00000000 00000000 00000000 00000000 3 0 3600 00000000 00000000 -30 N.A.'
+Ravid: read: key: 'thr-Gr-2'a9' OtpUser info '10 1 00000000 00000000 00000000 00000000 3 0 3600 00000000 00000000 -30 N.A.'
+Ravid: read: key: 'thr-Gr-3'a9' OtpUser info '10 1 00000000 00000000 00000000 00000000 3 0 3600 00000000 00000000 -30 N.A.'
+Test test_entity.c:'testStoreLoad' pass
+==12724== 
+==12724== HEAP SUMMARY:
+==12724==     in use at exit: 0 bytes in 0 blocks
+==12724==   total heap usage: 4,474 allocs, 4,474 frees, 322,245 bytes allocated
+==12724== 
+==12724== All heap blocks were freed -- no leaks are possible
+==12724== 
+==12724== For counts of detected and suppressed errors, rerun with: -v
+==12724== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+rm -f *.o
