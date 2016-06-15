@@ -1,4 +1,4 @@
-# libsecurityc-c
+# libsecurity-c
 
 ## Overview:
 
