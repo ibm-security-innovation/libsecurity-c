@@ -480,6 +480,70 @@ char *Utils_Fgets(char *str, int16_t maxLen, FILE *ifp) {
   return fgets(str, maxLen, ifp);
 }
 
+// Calculate a password's strength:
+// The strength is calculated based on the password's length combined with the 
+// diversity of letters, capital letters, digits and extra characters. Combining 
+// the user name as part of the password weaken it by default.
+// The effect of combining the user name (assuming it is 2 or more characters)
+// changes depends on its case sensitivity:
+// 1. If it is case senstive the password strength is limited by STRENGTH_SUFFICIENT
+// 2. If it is case insenstive the password strength is limited by STRENGTH_POOR
+// The results may be one of: 
+///   STRENGTH_EXCELLENT - password contains at least 2 characters from each type 
+//    STRENGTH_GOOD - password contains at least 2 characters from 3 of the 4 types 
+//    STRENGTH_SUFFICIENT - password contains at least 2 characters from 2 of the 4 types
+//                          or a case insensitive user name 
+//    STRENGTH_POOR - password contains only characters from one of the 4 types
+//                    or a case sensitive user name
+PasswordStreangthType Utils_CalculatePasswordStrength(const unsigned char *sPwd, const unsigned char *userName) {
+  int16_t i=0, len=0, maxStrength = STRENGTH_EXCELLENT, cntLen=0, pwdStrength=STRENGTH_NIL;
+  int16_t cntVal[PWD_MAX_COUNTERS];
+  char *tmpPwd=NULL, *tmpUser = NULL, *p = NULL;
+
+  if (sPwd == NULL)
+    return STRENGTH_POOR;
+  len = strlen((const char *)sPwd);
+  if (len < MIN_PASSWORD_LENGTH)
+    return STRENGTH_POOR;
+  cntLen = sizeof(PwdCharType);
+  if (cntLen > PWD_MAX_COUNTERS) {
+      Utils_Abort("FATAL: Internal Error: too many password length counters\n");
+  }
+  for (i=0 ; i<PWD_MAX_COUNTERS ; i++)
+    cntVal[i] = 0;
+  // If the user name is 1 or 2 characters it is OK to have it in the password
+  if (userName != NULL && strlen((const char *)userName) > 2) {
+    Utils_CreateAndCopyString(&tmpPwd, (const char *)sPwd, len);
+    Utils_CreateAndCopyString(&tmpUser, (const char *)userName, strlen((const char *)userName));
+    p = tmpPwd;
+    for ( ; *p; ++p) *p = tolower(*p);
+    p = tmpUser;
+    for ( ; *p; ++p) *p = tolower(*p);
+    if (strstr((const char *)sPwd, (const char *)userName) != NULL)
+      maxStrength = STRENGTH_POOR;
+    else if (strstr(tmpPwd, tmpUser) != NULL)
+      maxStrength = STRENGTH_SUFFICIENT;
+    Utils_Free(tmpPwd);
+    Utils_Free(tmpUser);
+  }
+  for (i=0 ; i<len ; i++) {
+    if (isupper(sPwd[i])) 
+      cntVal[UpperCaseIdx]++;
+    else if (islower(sPwd[i]))
+      cntVal[LowerCaseIdx]++;
+    else if (isdigit(sPwd[i]))
+      cntVal[DigitIdx]++;
+    else
+      cntVal[OtherIdx]++;
+  }
+  for (i=0 ; i<cntLen ; i++) {
+    if (cntVal[i] > 1)
+      pwdStrength++;
+  }  
+  if (pwdStrength > maxStrength)
+    pwdStrength = maxStrength;
+  return pwdStrength;
+}
 
 // Generate a valid password that includes defaultPasswordLen characters with 2 Upper case characters, 2 numbers and 2 characters from
 // "!@#$&-+;"

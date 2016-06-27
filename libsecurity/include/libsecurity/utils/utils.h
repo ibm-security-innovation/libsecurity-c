@@ -37,6 +37,8 @@ extern char errStr[ERR_STR_LEN];
 #define MIN_PASSWORD_LENGTH 6 // at least 2 chars, 2 digits and 2 extra chars
 #define MAX_PASSWORD_LENGTH 255
 
+typedef enum {STRENGTH_NIL=0, STRENGTH_POOR, STRENGTH_SUFFICIENT, STRENGTH_GOOD, STRENGTH_EXCELLENT} PasswordStreangthType;
+
 typedef struct {
   char *name;
   bool (*testFunc)(void);
@@ -68,6 +70,8 @@ bool Utils_CheckNameValidity(const char *errStrPrefix, const char *name, int16_t
 bool Utils_IsPrefixValid(const char *errStrPrefix, const char *prefix);
 bool Utils_GetIpV4Address(const char *ipStr, int16_t addressVec[4], int32_t *addr);
 bool Utils_IsIpStrValid(const char *ipStr);
+
+PasswordStreangthType Utils_CalculatePasswordStrength(const unsigned char *sPwd, const unsigned char *userName);
 
 void Utils_AddPrefixToErrorStr(const char *str);
 

@@ -144,9 +144,10 @@ STATIC bool generateSaltedHashPwd(const unsigned char *sPwd, int16_t pwdLen, con
   return true;
 }
 
-STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t pwdLen, const unsigned char *sSalt, int16_t saltLen, bool isPwdHashed) {
+STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t pwdLen, const unsigned char *sSalt, int16_t saltLen, PasswordStreangthType minPwdStrength, bool isPwdHashed) {
   int16_t i = 0, len = 0, sLen = 0;
   unsigned char *cahPwd = NULL, *caSalt = NULL;
+  PasswordStreangthType pwdStrength;
 
   if (sPwd == NULL || sSalt == NULL || pwdLen < 0 || saltLen < 0) {
     snprintf(errStr, sizeof(errStr), "newUserPwdHandler: password ('%s'), pwd len %d, salt ('%s'), salt len %d must be legal", sPwd, pwdLen,
@@ -167,6 +168,11 @@ STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t 
     }
     Utils_CreateAndCopyUcString(&caSalt, sSalt, sLen + UTILS_STR_LEN_SIZE);
   } else {
+    pwdStrength = Utils_CalculatePasswordStrength(sPwd, NULL);
+    if (pwdStrength < minPwdStrength) {
+      snprintf(errStr, sizeof(errStr), "newUserPwdHandler: The given password strength %d is smaller than the required minimum %d", pwdStrength, minPwdStrength);
+      return false;
+    }
     if (Utils_GenerateCharArray(sSalt, saltLen, &caSalt) == false) {
       return false;
     }
@@ -189,12 +195,12 @@ STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t 
 
 // Generate a new userPwd for a given userId and password
 // The generated password is with a default expiration time
-bool Pwd_NewUserPwd(PwdS **newPwd, const unsigned char *sPwd, const unsigned char *sSalt) {
+bool Pwd_NewUserPwd(PwdS **newPwd, const unsigned char *sPwd, const unsigned char *sSalt, PasswordStreangthType minPwdStrength) {
   if (sPwd == NULL || sSalt == NULL || newPwd == NULL) {
     snprintf(errStr, sizeof(errStr), "Pwd_NewUserPwd: Password and salt strings must not be NULL");
     return false;
   }
-  return newUserPwdHandler(newPwd, sPwd, (int16_t)strlen((const char *)sPwd), sSalt, (int16_t)strlen((const char *)sSalt), false);
+  return newUserPwdHandler(newPwd, sPwd, (int16_t)strlen((const char *)sPwd), sSalt, (int16_t)strlen((const char *)sSalt), minPwdStrength, false);
 }
 
 void Pwd_FreeUserPwd(void *pwd) {
@@ -219,9 +225,10 @@ bool Pwd_SetTemporaryPwd(PwdS *p, const bool flag) {
 
 // Update the password, it's expioration time and it's state (is it a one-time-password or a regular one)
 STATIC bool updatePasswordHandler(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, MicroSecTimeStamp expiration,
-                                  bool temporaryPwd, bool isHashedPwd) {
+                                  bool temporaryPwd, PasswordStreangthType minPwdStrength, bool isHashedPwd) {
   int16_t i = 0, len = 0, saltLen = 0;
   unsigned char *cahPwd = NULL, *cahPwd1 = NULL;
+  PasswordStreangthType pwdStrength;
 
   if (pwd == NULL || sPwd == NULL || sNewPwd == NULL) return false;
   if (Utils_GetCharArrayLen(pwd->caSalt, &saltLen, MIN_SALT_LEN, MAX_SALT_LEN) == false) {
@@ -238,6 +245,11 @@ STATIC bool updatePasswordHandler(PwdS *pwd, const unsigned char *sPwd, const un
     }
     Utils_CreateAndCopyUcString(&cahPwd, sPwd, len + UTILS_STR_LEN_SIZE);
   } else {
+    pwdStrength = Utils_CalculatePasswordStrength(sNewPwd, NULL);
+    if (pwdStrength < minPwdStrength) {
+      snprintf(errStr, sizeof(errStr), "updatePasswordHandler: The new password strength %d is smaller than the required minimum %d", pwdStrength, minPwdStrength);
+      return false;
+    }
     if (generateSaltedHashPwd(sPwd, strlen((const char *)sPwd), &(pwd->caSalt[UTILS_STR_LEN_SIZE]), saltLen, &cahPwd) == false) {
       snprintf(errStr, sizeof(errStr), "problem was found while verifing the new password");
       return false;
@@ -273,15 +285,15 @@ STATIC bool updatePasswordHandler(PwdS *pwd, const unsigned char *sPwd, const un
 }
 
 #ifdef STATIC_F
-STATIC bool updatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, bool isHashedPwd) {
-  return updatePasswordHandler(pwd, sPwd, sNewPwd, getNewDefaultPasswordExpirationTime(), DEFAULT_ONE_TIME_PASSWORD, isHashedPwd);
+STATIC bool updatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, PasswordStreangthType minPwdStrength, bool isHashedPwd) {
+  return updatePasswordHandler(pwd, sPwd, sNewPwd, getNewDefaultPasswordExpirationTime(), DEFAULT_ONE_TIME_PASSWORD, minPwdStrength, isHashedPwd);
 }
 #endif
 
 // Update password and expiration time
-bool Pwd_UpdatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd) {
+bool Pwd_UpdatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, PasswordStreangthType minPwdStrength) {
   if (pwd == NULL || sPwd == NULL || sNewPwd == NULL) return false;
-  return updatePasswordHandler(pwd, sPwd, sNewPwd, getNewDefaultPasswordExpirationTime(), DEFAULT_ONE_TIME_PASSWORD, false);
+  return updatePasswordHandler(pwd, sPwd, sNewPwd, getNewDefaultPasswordExpirationTime(), DEFAULT_ONE_TIME_PASSWORD, minPwdStrength, false);
 }
 
 // Verify that the given password is the expected one and that it is not expired
@@ -549,7 +561,7 @@ bool Pwd_Load(void **loadPwd, const SecureStorageS *storage, const char *prefix,
     Utils_PrintHexStr(stderr, "Loaded pwd: ", pwd, pwdLen);
     Utils_PrintHexStr(stderr, "Loaded salt: ", salt, saltLen);
   }
-  if (newUserPwdHandler((PwdS **)loadPwd, pwd, pwdLen, salt, saltLen, true) == false) { // the loaded password is already hashed
+  if (newUserPwdHandler((PwdS **)loadPwd, pwd, pwdLen, salt, saltLen, STRENGTH_NIL, true) == false) { // the loaded password is already hashed
     printf("Error: %s\n", errStr);
     Utils_Free(pwd);
     Utils_Free(salt);

@@ -48,17 +48,17 @@
 
 extern bool Pwd_TestMode;
 
-STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t pwdLen, const unsigned char *sSalt, int16_t saltLen, bool isPwdHashed);
+STATIC bool newUserPwdHandler(PwdS **newPwd, const unsigned char *sPwd, int16_t pwdLen, const unsigned char *sSalt, int16_t saltLen, PasswordStreangthType minPwdStrength, bool isPwdHashed);
 STATIC bool isPwdLengthValid(const unsigned char *caPwd);
 STATIC int16_t countOldHashedPassword();
 STATIC bool isPwdValidHandler(const PwdS *pwd, const unsigned char *sPwd, bool isHashed);
 STATIC bool generateSaltedHashPwd(const unsigned char *sPwd, int16_t pwdLen, const unsigned char *sSalt, int16_t saltLen, unsigned char **cahPwd);
 STATIC MicroSecTimeStamp getNewDefaultPasswordExpirationTime(void);
 STATIC bool updatePasswordHandler(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, MicroSecTimeStamp expiration,
-                                  bool oneTimePwd, bool isHashedPwd);
+                                  bool oneTimePwd, PasswordStreangthType minPwdStrength, bool isHashedPwd);
 
 #ifdef STATIC_F
-STATIC bool updatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, bool isHashedPwd);
+STATIC bool updatePassword(PwdS *pwd, const unsigned char *sPwd, const unsigned char *sNewPwd, PasswordStreangthType minPwdStrength, bool isHashedPwd);
 #endif
 STATIC void structToStr(const PwdS *pwd, int16_t idx, char **str, int16_t *len);
 STATIC bool storeOldPasswords(const PwdS *pwd, const SecureStorageS *storage, const char *prefix);

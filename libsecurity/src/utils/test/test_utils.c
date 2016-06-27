@@ -26,6 +26,12 @@ static char *cacertFile = NULL;
 static int16_t syslogServerPort = 514;
 #endif
 
+typedef struct {
+  char *pwd;
+  char *user;
+  PasswordStreangthType pwdStrength;
+}pwdStrengthStruct;
+
 STATIC bool getLastLineOfFile(char *file, char *line, int16_t maxLen) {
   int16_t len = 0;
   bool ret = false;
@@ -54,6 +60,46 @@ STATIC bool getLastLineOfFile(char *file, char *line, int16_t maxLen) {
     ret = false;
   fclose(ifp);
   return ret;
+}
+
+// Test if the password strength is as expected
+STATIC bool testPwdStrength() {
+  int16_t i=0, len=0;
+  bool pass = true;
+  unsigned char *newPwd=NULL;
+  pwdStrengthStruct pwdStrength[] = {{"abc", "", STRENGTH_POOR}, {"", NULL, STRENGTH_POOR}, 
+    {"abAB12#$", NULL, STRENGTH_EXCELLENT}, {"aAB123", "", STRENGTH_SUFFICIENT}, 
+    {"aA12#$", "", STRENGTH_SUFFICIENT}, {"abcd123", "", STRENGTH_SUFFICIENT},
+    {"123456", "", STRENGTH_POOR}, {"a12AB#%", "", STRENGTH_GOOD},
+    {"abAB12#$", "bab", STRENGTH_SUFFICIENT}, {"abAB12#$", "ba", STRENGTH_EXCELLENT}, 
+    {"ravID11#%", "ravid", STRENGTH_SUFFICIENT}, {"araVIdra", "raVId", STRENGTH_POOR}
+  };
+  PasswordStreangthType val, expected;
+
+  len = sizeof(pwdStrength) / sizeof(pwdStrengthStruct);
+  for(i=0 ; i<len ; i++) {
+    val = Utils_CalculatePasswordStrength(pwdStrength[i].pwd, pwdStrength[i].user);
+    if (val != pwdStrength[i].pwdStrength) {
+      printf("Error: test fail, password '%s' expected strength %d, calculated strength %d\n", pwdStrength[i].pwd, pwdStrength[i].pwdStrength, val);
+      pass = false;
+    }
+  }
+  for (i=0 ; i<MAX_PASSWORD_LENGTH+5 ; i++) {
+    if (Utils_GenerateNewValidPassword(&newPwd, i) == true) {
+      val = Utils_CalculatePasswordStrength(newPwd, NULL);
+      if ((i>=10 && val < STRENGTH_EXCELLENT) || (i>=MIN_PASSWORD_LENGTH && i < 10 && val < STRENGTH_GOOD)) {
+        expected = STRENGTH_EXCELLENT;
+        if (i<10)
+          expected = STRENGTH_GOOD;
+        printf("Error: test fail, password '%s' expected strength at least %d, calculated strength %d\n", newPwd, expected, val);
+        pass = false;
+      }
+      Utils_Free(newPwd);
+    }
+    if (pass == false)
+      break;
+  }
+  return pass;
 }
 
 STATIC bool testIpStr() {
@@ -329,7 +375,9 @@ int main()
   int16_t i = 0, len = 0;
   char *res = NULL;
 
-  Utils_TestFuncS callFunc[] = { { "testAbortCb", testAbortCb },
+  Utils_TestFuncS callFunc[] = { 
+                                 { "testPwdStrength", testPwdStrength},
+                                 { "testAbortCb", testAbortCb },
                                  { "testMyMalloc", testMyMalloc },
                                  { "testMyFree", testMyFree },
                                  { "testMyFopen", testMyFopen },
@@ -339,7 +387,8 @@ int main()
                                  { "testReadWriteToFile", testReadWriteToFile },
                                  { "testSyslogMuleMatrics", testSyslogMuleMatrics },
                                  { "testSyslogLogMessage", testSyslogLogMessage },
-                                 { "testSetAppName", testSetAppName } };
+                                 { "testSetAppName", testSetAppName } 
+                               };
 
   len = sizeof(callFunc) / sizeof(Utils_TestFuncS);
 
