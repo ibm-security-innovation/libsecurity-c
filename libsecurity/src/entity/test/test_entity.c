@@ -13,7 +13,7 @@
 #define NUM_OF_USERS 4
 #define MAX_USER_NAME 20
 
-#define SECRET ((unsigned char *)"12345678123456781234567812345678")
+#define SECRET ((unsigned char *)"1234567812345ab81AB456@%12345678")
 #define SALT ((unsigned char *)"abcd")
 
 const char *groupName = "group1";
@@ -143,7 +143,7 @@ STATIC bool testEntityListAreEqual() {
   }
   snprintf(userName, sizeof(userName), userNameFmt, 0);
   EntityManager_RemoveUserFromGroup(entityManager1, groupName[0], userName);
-  Accounts_NewUser(&amUser, USER_PERMISSION_STR, SECRET, SALT);
+  Accounts_NewUser(&amUser, USER_PERMISSION_STR, SECRET, SALT, STRENGTH_SUFFICIENT);
   EntityManager_RegisterProperty(entityManager2, groupName[1], AM_PROPERTY_NAME, (void *)amUser);
   for (i = 0; i < len; i++) {
     getGroup(entityManager1, groupName[i], (void **)(&g1));
@@ -179,7 +179,7 @@ STATIC bool addRemoveProperty(EntityManager *entityManager, char *name) {
   void *tmp;
 
   len = sizeof(expected) / sizeof(bool);
-  Accounts_NewUser(&amUser, USER_PERMISSION_STR, SECRET, SALT);
+  Accounts_NewUser(&amUser, USER_PERMISSION_STR, SECRET, SALT, STRENGTH_GOOD);
   EntityManager_RegisterProperty(entityManager, name, AM_PROPERTY_NAME, (void *)amUser);
   ret = EntityManager_GetProperty(entityManager, name, AM_PROPERTY_NAME, &tmp);
   if (ret == false) {
@@ -297,13 +297,13 @@ STATIC bool generateAndAddProperties(EntityManager *entityManager, int16_t numOf
   PwdS *pwdUser = NULL;
 
   for (i = 0; i < numOfUsers; i++) {
-    if (Accounts_NewUser(&amUser, SUPER_USER_PERMISSION_STR, SECRET, SALT) == false) {
+    if (Accounts_NewUser(&amUser, SUPER_USER_PERMISSION_STR, SECRET, SALT, STRENGTH_GOOD) == false) {
       printf("Error while generating Accouns user: %s\n", errStr);
       return false;
     }
     snprintf(name, sizeof(name), userNameFmt, i);
     EntityManager_RegisterProperty(entityManager, name, AM_PROPERTY_NAME, (void *)amUser);
-    if (Pwd_NewUserPwd(&pwdUser, SECRET, SALT) == false) {
+    if (Pwd_NewUserPwd(&pwdUser, SECRET, SALT, STRENGTH_GOOD) == false) {
       printf("Error while generating Password for user: %s\n", errStr);
       return false;
     }
@@ -319,7 +319,7 @@ STATIC bool generateAndAddProperties(EntityManager *entityManager, int16_t numOf
     }
 
     if (i < numOfResources) {
-      if (Pwd_NewUserPwd(&pwdUser, SECRET, SALT) == false) {
+      if (Pwd_NewUserPwd(&pwdUser, SECRET, SALT, STRENGTH_GOOD) == false) {
         printf("Error while generating Password for user: %s\n", errStr);
         return false;
       }

@@ -505,7 +505,7 @@ PasswordStreangthType Utils_CalculatePasswordStrength(const unsigned char *sPwd,
   len = strlen((const char *)sPwd);
   if (len < MIN_PASSWORD_LENGTH)
     return STRENGTH_POOR;
-  cntLen = sizeof(PwdCharType);
+  cntLen = PWD_MAX_COUNTERS; // cntLen = sizeof(PwdCharType); doesn't work for MBED_OS
   if (cntLen > PWD_MAX_COUNTERS) {
       Utils_Abort("FATAL: Internal Error: too many password length counters\n");
   }
@@ -519,22 +519,25 @@ PasswordStreangthType Utils_CalculatePasswordStrength(const unsigned char *sPwd,
     for ( ; *p; ++p) *p = tolower(*p);
     p = tmpUser;
     for ( ; *p; ++p) *p = tolower(*p);
-    if (strstr((const char *)sPwd, (const char *)userName) != NULL)
+    if (strstr((const char *)sPwd, (const char *)userName) != NULL) {
       maxStrength = STRENGTH_POOR;
-    else if (strstr(tmpPwd, tmpUser) != NULL)
+    }
+    else if (strstr(tmpPwd, tmpUser) != NULL) {
       maxStrength = STRENGTH_SUFFICIENT;
+    }
     Utils_Free(tmpPwd);
     Utils_Free(tmpUser);
   }
   for (i=0 ; i<len ; i++) {
-    if (isupper(sPwd[i])) 
+    if (isupper(sPwd[i])) {
       cntVal[UpperCaseIdx]++;
-    else if (islower(sPwd[i]))
+    }else if (islower(sPwd[i])) {
       cntVal[LowerCaseIdx]++;
-    else if (isdigit(sPwd[i]))
+    }else if (isdigit(sPwd[i])) {
       cntVal[DigitIdx]++;
-    else
+    }else {
       cntVal[OtherIdx]++;
+    }
   }
   for (i=0 ; i<cntLen ; i++) {
     if (cntVal[i] > 1)

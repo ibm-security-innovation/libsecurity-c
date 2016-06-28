@@ -67,7 +67,7 @@ STATIC MicroSecTimeStamp getPwdExpiration(AmUserInfoS *user, const char *userNam
 }
 
 // If the user is valid, add it (or override) to the list
-bool Accounts_NewUser(AmUserInfoS **user, const char *privilege, const unsigned char *sPwd, const unsigned char *sSalt) {
+bool Accounts_NewUser(AmUserInfoS **user, const char *privilege, const unsigned char *sPwd, const unsigned char *sSalt, PasswordStreangthType minPwdStrength) {
   PrivilegeType privilegeType = USER_PERMISSION;
   PwdS *p = NULL;
 
@@ -80,7 +80,7 @@ bool Accounts_NewUser(AmUserInfoS **user, const char *privilege, const unsigned 
   if (checkPrivilegeValidity(privilege, &privilegeType) == false) {
     return false;
   }
-  if (Pwd_NewUserPwd(&p, sPwd, sSalt) == false) {
+  if (Pwd_NewUserPwd(&p, sPwd, sSalt, minPwdStrength) == false) {
     Utils_AddPrefixToErrorStr("AccountManagement: AddNewUser failed, error: ");
     return false;
   }
@@ -100,9 +100,9 @@ void Accounts_FreeUser(void *u) {
   Utils_Free(user);
 }
 
-bool Accounts_UpdateUserPwd(AmUserInfoS *user, const char *userName, const unsigned char *cPwd, const unsigned char *newPwd) {
+bool Accounts_UpdateUserPwd(AmUserInfoS *user, const char *userName, const unsigned char *cPwd, const unsigned char *newPwd, PasswordStreangthType minPwdStrength) {
   if (user == NULL || userName == NULL || cPwd == NULL || newPwd == NULL) return false;
-  if (Pwd_UpdatePassword(user->Pwd, cPwd, newPwd) == false) return false;
+  if (Pwd_UpdatePassword(user->Pwd, cPwd, newPwd, minPwdStrength) == false) return false;
   user->Pwd->Expiration = getPwdExpiration(user, userName);
   return true;
 }

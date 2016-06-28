@@ -353,7 +353,7 @@ STATIC bool testNewUserPwdStrength() {
 
   len = sizeof(newUserPwd) / sizeof(newPwdStruct);
   for (i=0 ; i<len ; i++) {
-    ret = Pwd_NewUserPwd(&p, newUserPwd[i].pwd, DEFAULT_SALT, newUserPwd[i].minStrength);
+    ret = Pwd_NewUserPwd(&p, (unsigned char *)newUserPwd[i].pwd, DEFAULT_SALT, newUserPwd[i].minStrength);
     if (ret != newUserPwd[i].expected) {
         printf("Error: test fail, password '%s' expected strength at least %d, expected results %d, recieved %d\n", newUserPwd[i].pwd, newUserPwd[i].minStrength, newUserPwd[i].expected, ret);
         pass = false;

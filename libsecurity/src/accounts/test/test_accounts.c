@@ -9,7 +9,7 @@
 #define NUM_OF_USERS 4
 #define MAX_USER_NAME_LENGTH 50
 
-#define DEFAULT_PASSWORD ((unsigned char *)"login-a1b2c3d")
+#define DEFAULT_PASSWORD ((unsigned char *)"login-a1b2c3%$")
 #define DEFAULT_SALT ((unsigned char *)"salt-a1b2c3d")
 #define SECRET ((unsigned char *)"a!@#%^&*(()__+_)(}{|PPO?>O2:~`12")
 
@@ -26,19 +26,15 @@ STATIC bool testNewUser() {
     for (pwdLen = 0; pwdLen < MAX_PASSWORD_LENGTH + 10; pwdLen += 4) {
       strcpy(salt, "");
       for (saltLen = 0; saltLen < MAX_SALT_LEN + 10; saltLen += 4) {
-        ret = Accounts_NewUser(&user, privilege[j], (unsigned char *)pwd, (unsigned char *)salt);
+        ret = Accounts_NewUser(&user, privilege[j], (unsigned char *)pwd, (unsigned char *)salt, STRENGTH_SUFFICIENT);
         if (ret == true && (j == 0 || pwdLen < MIN_PASSWORD_LENGTH || pwdLen > MAX_PASSWORD_LENGTH || saltLen < MIN_SALT_LEN || saltLen > MAX_SALT_LEN)) {
           printf("testNewUser fail: AM was created but the parameters are not "
-                 "legal: privilege "
-                 "'%s' pwdLen %d, saltLen %d\n",
-                 privilege[j], pwdLen, saltLen);
+                 "legal: privilege '%s' pwdLen %d, saltLen %d\n", privilege[j], pwdLen, saltLen);
           pass = false;
         } else if (ret == false && (j > 0 && pwdLen >= MIN_PASSWORD_LENGTH && pwdLen <= MAX_PASSWORD_LENGTH && saltLen >= MIN_SALT_LEN &&
                                     saltLen <= MAX_SALT_LEN)) {
-          printf("testNewUser fail: AM was not created but the parameters are "
-                 "legal: privilege "
-                 "'%s' pwdLen %d, ('%s') saltLen %d ('%s'), error: %s\n",
-                 privilege[j], pwdLen, pwd, saltLen, salt, errStr);
+          printf("testNewUser fail: AM was not created but the parameters are legal: privilege "
+                 "'%s' pwdLen %d, ('%s') saltLen %d ('%s'), error: %s\n", privilege[j], pwdLen, pwd, saltLen, salt, errStr);
           pass = false;
         }
         if (ret == true) {
@@ -47,7 +43,7 @@ STATIC bool testNewUser() {
         if (saltLen >= 0) strcat(salt, "ab12");
         if (pass == false) return false;
       }
-      if (pwdLen >= 0) strcat(pwd, "pwd1");
+      if (pwdLen >= 0) strcat(pwd, "#$ab");
     }
   }
   return pass;
@@ -60,7 +56,7 @@ STATIC bool testSetUserPrivilege() {
   AmUserInfoS *user = NULL;
 
   privelegeLen = sizeof(privilege) / sizeof(char *);
-  Accounts_NewUser(&user, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, (unsigned char *)"");
+  Accounts_NewUser(&user, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, (unsigned char *)"", STRENGTH_SUFFICIENT);
   for (i = 0; i < privelegeLen; i++) {
     ret = Accounts_SetUserPrivilege(user, privilege[i]);
     if (ret == true && (i == 0 || i == privelegeLen - 1)) {
@@ -87,7 +83,7 @@ STATIC bool testUpdateLoginPwd() {
   char *cPwd = NULL, *pwdPtr = NULL;
   AmUserInfoS *user = NULL;
 
-  if (Accounts_NewUser(&user, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, (unsigned char *)"") == false) {
+  if (Accounts_NewUser(&user, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, (unsigned char *)"", STRENGTH_SUFFICIENT) == false) {
     printf("testUpdateLoginPwd: Failed to initilized user, error: %s\n", errStr);
     return false;
   }
@@ -101,7 +97,7 @@ STATIC bool testUpdateLoginPwd() {
              i, cPwd, pwdVec[i], ret, i % 2, errStr);
       pass = false;
     }
-    ret = Accounts_UpdateUserPwd(user, name, (unsigned char *)cPwd, (unsigned char *)pwdVec[i]);
+    ret = Accounts_UpdateUserPwd(user, name, (unsigned char *)cPwd, (unsigned char *)pwdVec[i], STRENGTH_SUFFICIENT);
     if (ret == true) pwdPtr = pwdVec[i];
     if ((i % 2 == 0 && ret == false) || (i % 2 == 1 && ret == true)) {
       printf("testUpdateLoginPwd failed: in update pwd idx %d, curent password "
@@ -127,7 +123,7 @@ STATIC bool testStoreLoadLogin() {
   AmUserInfoS *u1 = NULL, *u2 = NULL;
   SecureStorageS storage;
 
-  Accounts_NewUser(&u1, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, DEFAULT_SALT);
+  Accounts_NewUser(&u1, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, DEFAULT_SALT, STRENGTH_SUFFICIENT);
   if (SecureStorage_NewStorage(SECRET, DEFAULT_SALT, &storage) == false) {
     printf("testStoreLoadLogin failed: Error when try to create new storage, "
            "error: %s\n",
@@ -172,7 +168,7 @@ STATIC bool testAccountsCorners() {
   MicroSecTimeStamp expected[3] = { Utils_GetBeginningOfTime(), Utils_GetFutureTimeuSec(ROOT_PWD_EXPIRATION_DAYS * 24 * 3600) / factor,
                                     Utils_GetFutureTimeuSec(PWD_EXPIRATION_DAYS * 24 * 3600) / factor };
 
-  Accounts_NewUser(&u1, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, DEFAULT_SALT);
+  Accounts_NewUser(&u1, SUPER_USER_PERMISSION_STR, DEFAULT_PASSWORD, DEFAULT_SALT, STRENGTH_SUFFICIENT);
   for (i = 0; i < len; i++) {
     if (i == 0)
       val = getPwdExpiration(NULL, name[i]);

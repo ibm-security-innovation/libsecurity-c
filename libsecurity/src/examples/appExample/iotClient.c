@@ -12,7 +12,7 @@
 #include "libsecurity/utils/hwAdapters.h"
 
 //static char serverHostStr[100] = "127.0.0.1";
-static char serverHostStr[100] = "9.147.6.74";
+static char serverHostStr[100] = "9.147.6.106";
 static char serverPortStr[6] = "8514";
 static char intervalStr[6] = "1";
 static char minRndStr[4] = "10";

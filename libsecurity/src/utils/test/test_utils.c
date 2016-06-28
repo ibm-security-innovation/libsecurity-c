@@ -15,7 +15,7 @@ static const char *removeStrFmt = "remove file: '%s'";
 static char *logFilePath = "/var/log/user.log";
 static char *syslogServerIpStr = "127.0.0.1";
 #else // external log
-static char *syslogServerIpStr = "9.147.6.74";
+static char *syslogServerIpStr = "9.147.6.106";
 #endif
 
 #if defined(MBED_OS)
@@ -78,7 +78,7 @@ STATIC bool testPwdStrength() {
 
   len = sizeof(pwdStrength) / sizeof(pwdStrengthStruct);
   for(i=0 ; i<len ; i++) {
-    val = Utils_CalculatePasswordStrength(pwdStrength[i].pwd, pwdStrength[i].user);
+    val = Utils_CalculatePasswordStrength((unsigned char *)pwdStrength[i].pwd, (unsigned char *)pwdStrength[i].user);
     if (val != pwdStrength[i].pwdStrength) {
       printf("Error: test fail, password '%s' expected strength %d, calculated strength %d\n", pwdStrength[i].pwd, pwdStrength[i].pwdStrength, val);
       pass = false;
@@ -366,7 +366,7 @@ STATIC bool testReadWriteToFile() {
 
 
 #ifdef MBED_OS
-int16_t testSyslog()
+int16_t testUtils()
 #else
 int main()
 #endif

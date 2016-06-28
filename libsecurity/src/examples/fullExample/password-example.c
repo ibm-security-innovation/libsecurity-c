@@ -1,6 +1,6 @@
 #include "example.h"
 
-static const unsigned char *PwdSecret = ((const unsigned char *)"A2B12t");
+static const unsigned char *PwdSecret = ((const unsigned char *)"A2B12ta@$");
 static const unsigned char *PwdSalt = ((const unsigned char *)"Salt1");
 
 static bool checkPwd(EntityManager *entityManager, const char *userName) {
@@ -20,7 +20,7 @@ static bool checkPwd(EntityManager *entityManager, const char *userName) {
     return false;
   }
   Utils_GenerateNewValidPassword(&newPwd, pwdLen);
-  if (Pwd_UpdatePassword(pwdUser, PwdSecret, newPwd)) {
+  if (Pwd_UpdatePassword(pwdUser, PwdSecret, newPwd, STRENGTH_GOOD)) {
       printf("checkPwd, password '%s' was successfully updated to the new password '%s'\n", PwdSecret, newPwd);
   }else {
     printf("checkPwd failed, Can't update password '%s' to the requested new password '%s', error: %s\n", PwdSecret, newPwd, errStr);
@@ -41,7 +41,7 @@ static bool checkPwd(EntityManager *entityManager, const char *userName) {
     Utils_Free(newPwd);
     return false;
   }
-  if (Pwd_UpdatePassword(pwdUser, newPwd, PwdSecret) == false) {
+  if (Pwd_UpdatePassword(pwdUser, newPwd, PwdSecret, STRENGTH_GOOD) == false) {
       printf("checkPwd, new password '%s' was not updated, the error is %s\n", PwdSecret, errStr);
   }else {
     printf("checkPwd failed, Password '%s' updated successfully to the new password '%s', but this password was already used as one of the last %d passwords\n", 
@@ -50,7 +50,7 @@ static bool checkPwd(EntityManager *entityManager, const char *userName) {
     return false;
   }
   Utils_GenerateNewValidPassword(&tPwd, pwdLen);
-  Pwd_UpdatePassword(pwdUser, newPwd, tPwd);
+  Pwd_UpdatePassword(pwdUser, newPwd, tPwd, STRENGTH_GOOD);
   Utils_Free(newPwd);
   Pwd_SetTemporaryPwd(pwdUser, true);
   printf("checkPwd, Update to new password '%s' and set it as a temporay password (turns obsolete after a single use)\n", tPwd);
@@ -69,7 +69,7 @@ static bool checkPwd(EntityManager *entityManager, const char *userName) {
     return false;
   }
   Utils_GenerateNewValidPassword(&newPwd, pwdLen);
-  Pwd_UpdatePassword(pwdUser, tPwd, newPwd);
+  Pwd_UpdatePassword(pwdUser, tPwd, newPwd, STRENGTH_GOOD);
   Pwd_VerifyPassword(pwdUser, wrongPassword);
   printf("checkPwd, Updated to a new password '%s' and incremented the error counter by 1\n", newPwd);
   Pwd_Print(stdout, "Current password information:\n", pwdUser);
@@ -81,7 +81,7 @@ static bool checkPwd(EntityManager *entityManager, const char *userName) {
 static bool createAndAddPwd(EntityManager *entityManager, const char *userName) {
   PwdS *pwdUser;
 
-  if (Pwd_NewUserPwd(&pwdUser, PwdSecret, PwdSalt) == false) {
+  if (Pwd_NewUserPwd(&pwdUser, PwdSecret, PwdSalt, STRENGTH_GOOD) == false) {
     printf("createAndAddPwd failed, Can't create OTP user, error: %s\n", errStr);
     return false;
   }

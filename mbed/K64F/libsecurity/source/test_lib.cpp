@@ -4,7 +4,7 @@
 
 extern "C" {
 	int testStorage();
-	int testSyslog();
+	int testUtils();
 	int testAcl();
 	int testAccounts();
 	int testEntity();
@@ -46,7 +46,7 @@ public:
 			{"testPassword", testPassword},
 			{"testSalt", testSalt},
 			{"testStorage", testStorage},
-			{"testSyslog", testSyslog},
+			{"testUtils", testUtils},
 			{"iotClient", iotClient}
 		};
 
