@@ -64,8 +64,7 @@ STATIC bool testAddRemoveItemToStorage() {
   ret = SecureStorage_GetItem(&storage, keys[0], lens[0], &val);
   if (ret == true && strcmp((char *)values[0], (char *)val) != 0) {
     printf("Test testAddRemoveItemToStorage failed: The value received for key '%s' was '%s' but "
-           "expected to '%s', error: %s\n",
-           keys[0], val, values[0], errStr);
+           "expected to '%s', error: %s\n", keys[0], val, values[0], errStr);
     pass = false;
   }
   if (ret == true) Utils_Free(val);
@@ -101,8 +100,7 @@ STATIC bool testCreateSaveReadSecureStorage() {
   int16_t i;
   bool pass = true, ret[2];
   SecureStorageS storage, storage1;
-  unsigned char *keys[4] = { (unsigned char *)"key1 to be or not to be and "
-                                              "'key1 to be or not to be :)'",
+  unsigned char *keys[4] = { (unsigned char *)"key1 to be or not to be and 'key1 to be or not to be :)'",
                              (unsigned char *)"key2", (unsigned char *)"key3 and other keys",
                              (unsigned char *)"key4 this is the question" };
   unsigned char *values[4] = { (unsigned char *)"val1-1", (unsigned char *)"val2", (unsigned char *)"val3", (unsigned char *)"val4 :)" };
@@ -284,13 +282,13 @@ STATIC bool testAddFindRemoveNotValidItemsToStorage() {
 STATIC bool testEncryptDecrypt() {
   int16_t i, len, textLen, textLen1;
   bool pass = true, breakFlag = false;
-  char *testText = "015this is a text:";
+  // char *testText = "015this is a text:";
+  char *testText = "056key1 to be or not to be and 'key1 to be or not to be :)'";
   unsigned char *encKey, *encKey1, *val;
   int16_t ret[3];
   char text[KEY_VAL_MAX_STR_LEN * 2] = { 0 }, charArray[10];
 
   Utils_GetCharArrayLen((unsigned char *)testText, &textLen, KEY_VAL_MIN_STR_LEN, KEY_VAL_MAX_STR_LEN);
-  // done by the = {0} memset(text, 0, KEY_VAL_MAX_STR_LEN*2);
   memcpy(text, testText, textLen + UTILS_STR_LEN_SIZE);
   len = KEY_VAL_MAX_STR_LEN + 2;
   for (i = 0; i < len; i++) {
@@ -333,6 +331,7 @@ STATIC bool testEncryptDecrypt() {
     sprintf(charArray, "%c", 'a' + i);
     strcat(text, charArray);
     Utils_SetCharArrayLen((unsigned char *)text, strlen(text) - UTILS_STR_LEN_SIZE);
+    break ;
   }
   return pass;
 }

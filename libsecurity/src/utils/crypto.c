@@ -13,7 +13,7 @@ bool Crypto_CalcHmac(const unsigned char *key, int16_t keyLen, const unsigned ch
   return true;
 }
 
-bool Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char *key, int16_t keyLen, const unsigned char iv[IV_LEN],
+int Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char *key, int16_t keyLen, unsigned char iv[IV_LEN],
                                  const unsigned char *input, unsigned char *output) {
   int16_t textLen = len + Crypto_GetAesPadFactor(len), ret = -1;
   keyLen = keyLen << 3;
@@ -26,7 +26,8 @@ bool Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char
     outputPtr = output;
   } else {
     ret = mbedtls_aes_setkey_dec(&ctx, key, keyLen);
-    Utils_Malloc((void **)(&newOutput), textLen + 1); // output length will be padded
+    if (ret == 0)
+      Utils_Malloc((void **)(&newOutput), textLen + 1); // output length will be padded
     // done by Utils_Malloc memset(newOutput, 0, textLen+1); // clear the memory
     outputPtr = newOutput;
   }
@@ -50,7 +51,7 @@ bool Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char
   }
   Utils_Free(newText);
   Utils_Free(newOutput);
-  return true;
+  return len;
 }
 
 bool Crypto_SHA256(const unsigned char *key, int16_t keyLen, unsigned char *output) {
@@ -62,6 +63,73 @@ int16_t Crypto_GetAesPadFactor(int16_t textLen) {
   return (MBED_AES_BLOCK_SIZE - textLen % MBED_AES_BLOCK_SIZE) % MBED_AES_BLOCK_SIZE;
 }
 
+#elif defined(OPENSSL_CRYPTO)
+
+bool Crypto_CalcHmac(const unsigned char *key, int16_t keyLen, const unsigned char *input, size_t inputLen, unsigned char *output) {
+  memcpy(output, HMAC(EVP_sha256(), key, keyLen, input, inputLen, NULL, NULL), SHA256_LEN);
+  return true;
+}
+
+int Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t inputLen, const unsigned char *key, int16_t keyLen, unsigned char iv[IV_LEN],
+                                 const unsigned char *input, unsigned char *output) {
+  EVP_CIPHER_CTX *ctx;
+  int len, outputLen;
+
+  if(!(ctx = EVP_CIPHER_CTX_new())) {
+    snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when creating EVP_CIPHER_CTX_new");
+    return -1;
+  }
+  if (mode == CRYPTO_ENCRYPT_MODE) {
+    if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_EncryptInit_ex");
+      return -1;
+    }
+    if(EVP_EncryptUpdate(ctx, output, &len, input, inputLen) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_EncryptUpdate");
+      return -1;
+    }
+    outputLen = len;
+    if(EVP_EncryptFinal_ex(ctx, output + len, &len) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_EncryptFinal_ex");
+      return -1;
+    }
+    outputLen += len;
+  }else {
+    if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_DecryptInit_ex");
+      return -1;
+    }
+    if(EVP_DecryptUpdate(ctx, output, &len, input, inputLen) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_DecryptUpdate");
+      return -1;
+    }
+    outputLen = len;
+
+    output[outputLen] = 0;
+    printf("Ravid: mid newOutput '%s'\n", output);
+
+    if(EVP_DecryptFinal_ex(ctx, output + len, &len) != 1) {
+      snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_DecryptFinal_ex");
+      return -1;
+    }
+    printf("Ravid: output len %d, add len %d\n", outputLen, len);
+    outputLen += len;
+    output[outputLen] = 0;
+    // printf("Ravid: newOutput '%s'\n", output);
+  }
+  EVP_CIPHER_CTX_free(ctx);
+  return outputLen;
+}
+
+bool Crypto_SHA256(const unsigned char *key, int16_t keyLen, unsigned char *output) {
+  SHA256(key, keyLen, output);
+  return true;
+}
+
+int16_t Crypto_GetAesPadFactor(int16_t textLen) {
+  return 0;
+}
+
 #else
 
 bool Crypto_CalcHmac(const unsigned char *key, int16_t keyLen, const unsigned char *input, size_t inputLen, unsigned char *output) {
@@ -70,11 +138,11 @@ bool Crypto_CalcHmac(const unsigned char *key, int16_t keyLen, const unsigned ch
   return true;
 }
 
-bool Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char *key, int16_t keyLen, const unsigned char iv[IV_LEN],
+int Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char *key, int16_t keyLen, unsigned char iv[IV_LEN],
                                  const unsigned char *input, unsigned char *output) {
   if ((mode != CRYPTO_ENCRYPT_MODE && mode != CRYPTO_DECRYPT_MODE) || keyLen < 0) return false;
   crypto_stream_xor(output, input, (unsigned long long)len, iv, key);
-  return true;
+  return len;
 }
 
 bool Crypto_SHA256(const unsigned char *key, int16_t keyLen, unsigned char *output) {

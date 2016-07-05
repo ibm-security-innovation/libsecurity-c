@@ -5,6 +5,8 @@
 
 #include "libsecurity/utils/utils.h"
 
+#ifndef OPENSSL_CRYPTO // ravid fix it
+
 #include "mbedtls/config.h"
 #include "mbedtls/platform.h"
 
@@ -14,6 +16,9 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
+
+#endif
+
 
 #define SERVER_PORT_LEN 10
 

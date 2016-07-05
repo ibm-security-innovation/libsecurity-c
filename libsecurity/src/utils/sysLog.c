@@ -1,3 +1,5 @@
+#ifndef OPENSSL_CRYPTO // ravid fix it
+
 /* Our Syslog Message Format (subset of RFC5424):
 SYSLOG-MSG              = HEADER SP STRUCTURED-DATA [SP MSG]
 Our log SYSLOG-MSG      = HEADER SP - SP MSG
@@ -233,3 +235,5 @@ void Syslog_CloseLog(void) {
 void SyslogTest_GetHostName(char *str, int16_t strLen) {
   snprintf(str, strLen, "%s", hostName);
 }
+
+#endif

@@ -560,8 +560,7 @@ bool Utils_GenerateNewValidPassword(unsigned char **sPwd, int16_t pwdLen) {
   if (sPwd == NULL) return false;
   if (pwdLen < MIN_PASSWORD_LENGTH) {
     snprintf(errStr, sizeof(errStr), "Error: Password length %d, is ilegal, must be at least %d in "
-                                     "order to have at least 2 chars, 2 digits and 2 extra charachters",
-             pwdLen, MIN_PASSWORD_LENGTH);
+                                     "order to have at least 2 chars, 2 digits and 2 extra charachters", pwdLen, MIN_PASSWORD_LENGTH);
     return false;
   }
   Utils_Malloc((void **)(sPwd), pwdLen + 1);

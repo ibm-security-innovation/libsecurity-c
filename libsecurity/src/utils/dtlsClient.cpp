@@ -1,6 +1,9 @@
+#ifndef OPENSSL_CRYPTO // ravid fix it
+
 //extern int make_iso_compilers_happy; // gcc when compiled with -pedantic reports a diagnostic when the translation unit is empty as it is requested by the C Standard
 
 #include "libsecurity/utils/dtlsClient_int.h"
+
 
 #if defined(MBED_OS)
 
@@ -224,6 +227,19 @@ void DTLS_ClientFree() {
   delete gt;
 }
 
+#elif defined (OPENSSL_CRYPTO) // ravid fix it
+bool DTLS_ClientInit(const char *cacertFile, const char *serverAddr, int port, const char *serverName) {
+  return true;
+}
+bool DTLS_ClientSendPacket(const char *body, int body_len) {
+  return true;
+}
+void DTLS_ClientFree(void) {
+}
+bool DTLS_GetRandom(unsigned char *random, int len){
+  return true;
+}
+
 #else // mbed on LINUX_OS
 
 extern "C" {
@@ -359,5 +375,7 @@ void DTLS_ClientFree() {
   clientWasInit = false;
 }
 }
+
+#endif
 
 #endif

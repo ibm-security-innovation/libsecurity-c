@@ -189,6 +189,8 @@ STATIC bool testStaticCalculationSalting() {
   bool pass = true;
 #ifdef MBEDTLS_CRYPTO
   testHashS data[] = { { 1, 64, "a193d7d1ba2253b712d13a0dd27bd7dfddcf04a6c8d904ae7e0e9ba2ced0f8fb" } };
+#elif OPENSSL_CRYPTO
+  testHashS data[] = { { 1, 64, "a193d7d1ba2253b712d13a0dd27bd7dfddcf04a6c8d904ae7e0e9ba2ced0f8fb" } };
 #else
   testHashS data[] = { { 1, 128, "dd0f8983e5a770442a0aca37f62e59ef15988a508bd43ed2e6a9ce0ac94caefe7"
                                  "f25bca6d1ef2d6196ae981737c055900378463cac60769d59b15d0ab0b5dc3"

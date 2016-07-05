@@ -53,6 +53,6 @@ STATIC void writeKeyValue(FILE *fp, const SecureStorageS *storage);
 STATIC bool readKeyValue(FILE *fp, const SecureStorageS *storage);
 STATIC bool calcHMac(const SecureStorageS *storage, unsigned char *caData);
 STATIC void getHKey(const unsigned char *caKey, unsigned char *cahKey);
-STATIC bool encrypt(const unsigned char *caText, const unsigned char *ivStr, const unsigned char *caSecret, unsigned char **caData);
+STATIC bool encrypt(const unsigned char *caText, unsigned char *ivStr, const unsigned char *caSecret, unsigned char **caData);
 STATIC bool decrypt(unsigned char *caText, const unsigned char *caSecret, unsigned char **caData);
 // STATIC bool isEqual(const void *ts1, const void *ts2);

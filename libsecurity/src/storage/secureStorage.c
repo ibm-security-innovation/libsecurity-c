@@ -235,10 +235,10 @@ bool SecureStorage_NewStorage(const unsigned char *sSecret, const unsigned char 
 // The encrypted string structure: len, IV, encrypted string IV structure: len + I
 // Encrypted string structure: len + text
 // Note: the caller must free the memory
-STATIC bool encrypt(const unsigned char *caText, const unsigned char *ivStr, const unsigned char *caSecret, unsigned char **caData) {
-  int16_t textLen = 0, longLen = 0;
+STATIC bool encrypt(const unsigned char *caText, unsigned char *ivStr, const unsigned char *caSecret, unsigned char **caData) {
+  int16_t textLen = 0, longLen = 0, newLen = 0;
   unsigned char *startEncTextptr = NULL;
-  const unsigned char *ivStrPtr = NULL;
+  unsigned char *ivStrPtr = NULL;
 
   *caData = NULL;
   if (caText == NULL || caSecret == NULL || ivStr == NULL) {
@@ -254,16 +254,16 @@ STATIC bool encrypt(const unsigned char *caText, const unsigned char *ivStr, con
   }
   longLen = textLen;
   // both the encrypted and the ivStr have prefix of UTILS_STR_LEN_SIZE
-  Utils_Malloc((void **)(caData), UTILS_STR_LEN_SIZE + FULL_IV_LEN + textLen + 1);
+  Utils_Malloc((void **)(caData), UTILS_STR_LEN_SIZE + FULL_IV_LEN + textLen + 1 + AES_BLOCK_SIZE);
   // done by Utils_Malloc memset(*data, 0,
   // UTILS_STR_LEN_SIZE+FULL_IV_LEN+textLen);
   startEncTextptr = *caData + UTILS_STR_LEN_SIZE + FULL_IV_LEN;
   memcpy(*caData + UTILS_STR_LEN_SIZE, ivStr, FULL_IV_LEN);
-  ivStrPtr = (const unsigned char *)(ivStr + UTILS_STR_LEN_SIZE);
-  if (Crypto_EncryptDecryptAesCbc(CRYPTO_ENCRYPT_MODE, longLen, &(caSecret[UTILS_STR_LEN_SIZE]), SECRET_LEN, ivStrPtr, caText, startEncTextptr) == false) {
+  ivStrPtr = (unsigned char *)(ivStr + UTILS_STR_LEN_SIZE);
+  if ((newLen = Crypto_EncryptDecryptAesCbc(CRYPTO_ENCRYPT_MODE, longLen, &(caSecret[UTILS_STR_LEN_SIZE]), SECRET_LEN, ivStrPtr, caText, startEncTextptr)) <= 0) {
     return false;
   }
-  Utils_SetCharArrayLen(*caData, FULL_IV_LEN + textLen);
+  Utils_SetCharArrayLen(*caData, FULL_IV_LEN + newLen);
   return true;
 }
 
@@ -290,7 +290,7 @@ STATIC bool decrypt(unsigned char *caText, const unsigned char *caSecret, unsign
   ivStr[IV_LEN] = 0;
   textPtr = *caData;
   ptr = caText + UTILS_STR_LEN_SIZE + FULL_IV_LEN;
-  if (Crypto_EncryptDecryptAesCbc(CRYPTO_DECRYPT_MODE, longLen, &(caSecret[UTILS_STR_LEN_SIZE]), SECRET_LEN, ivStr, ptr, textPtr) == false) {
+  if (Crypto_EncryptDecryptAesCbc(CRYPTO_DECRYPT_MODE, longLen, &(caSecret[UTILS_STR_LEN_SIZE]), SECRET_LEN, ivStr, ptr, textPtr) <=0) {
     return false;
   }
   return true;
