@@ -62,37 +62,6 @@ STATIC bool getLastLineOfFile(char *file, char *line, int16_t maxLen) {
   return ret;
 }
 
-STATIC bool testCrypto() {
-  int16_t i=0, len=0;
-  bool pass = true;
-  unsigned char text[NaCl_MAX_TEXT_LEN_BYTES+1];
-  unsigned char key[SECRET_LEN], iv[IV_LEN];
-  unsigned char encryptedText[NaCl_MAX_TEXT_LEN_BYTES+1];
-  unsigned char decryptedText[NaCl_MAX_TEXT_LEN_BYTES+1];
-
-  Crypto_Random(key, SECRET_LEN);
-  Crypto_Random(iv, IV_LEN);
-
-  char *addText = "1234567890123456";
-  strcpy(text, addText);
-  for (i=0 ; i<12 ; i++) {
-    len = Crypto_EncryptDecryptAesCbc(CRYPTO_ENCRYPT_MODE, strlen(text), key, SECRET_LEN, iv, text, encryptedText);
-    printf("encrypted len in %d\n", len);
-    len = Crypto_EncryptDecryptAesCbc(CRYPTO_DECRYPT_MODE, len, key, SECRET_LEN, iv, encryptedText, decryptedText);
-    printf("decrypted len %d\n", len);
-    if (len > 0)
-      decryptedText[len] = '\0';
-
-//    printf("Ravid: decrypted text '%s'\n", decryptedText);
-//    if (len > 0 && memcmp(text, decryptedText, strlen(text)-1) != 0) {
-//      printf("Error: test fail, original text '%s' != decrypted text '%s'\n", text, decryptedText);
-//      pass = false;
-//    }
-    strcat(text, addText);
-  }
-  return pass;
-}
-
 // Test if the password strength is as expected
 STATIC bool testPwdStrength() {
   int16_t i=0, len=0;
@@ -166,7 +135,7 @@ STATIC bool testIpStr() {
 // Generate a log message, send it to the syslog and compare with the syslog
 // file
 STATIC bool testSyslogLogMessage() {
-#ifndef OPENSSL_CRYPTO // ravid fix it
+#ifndef OPENSSL_CRYPTO
   int16_t i = 0, j = 0;
   bool pass = false, ret = false;
   char expStr[ERR_STR_LEN], testStr[ERR_STR_LEN], hostName[ERR_STR_LEN];
@@ -216,7 +185,7 @@ STATIC bool testSyslogLogMessage() {
 // Generate a mule message, send it to the syslog and compare with the syslog
 // file
 STATIC bool testSyslogMuleMatrics() {
-#ifndef OPENSSL_CRYPTO // ravid fix it
+#ifndef OPENSSL_CRYPTO
   int16_t i = 0, idx = 0;
   bool pass = false, ret = false;
   char expStr[ERR_STR_LEN], testStr[ERR_STR_LEN], hostName[ERR_STR_LEN];
@@ -261,7 +230,7 @@ STATIC bool testSyslogMuleMatrics() {
 }
 
 STATIC bool testSetAppName() {
-#ifndef OPENSSL_CRYPTO // ravid fix it
+#ifndef OPENSSL_CRYPTO
   int16_t i = 0, ret, expect;
   bool pass = true;
   char str[6], *expStr = NULL;
@@ -418,7 +387,6 @@ int main()
   char *res = NULL;
 
   Utils_TestFuncS callFunc[] = { 
-                                 { "testCrypto", testCrypto},
                                  { "testPwdStrength", testPwdStrength},
                                  { "testAbortCb", testAbortCb },
                                  { "testMyMalloc", testMyMalloc },

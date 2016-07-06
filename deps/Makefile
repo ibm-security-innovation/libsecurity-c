@@ -12,13 +12,11 @@ OPENSSL_FILE=$(OPENSSL_LIB).tar.gz
 
 all: download_deps build_deps
 
-#download_deps: download_nacl download_mbedtls
-download_deps: download_openssl
+download_deps: download_nacl download_mbedtls download_openssl
 
 .PHONY: download_deps
 
-build_deps: build_openssl build_hashtab
-#build_deps: build_nacl build_mbedtls build_hashtab
+build_deps: build_nacl build_mbedtls build_openssl build_hashtab
 
 .PHONY: build_deps
 
@@ -54,16 +52,16 @@ build_mbedtls:
 
 download_openssl:
 	@echo "Downloading $(OPENSSL_LIB) ..."
-#	curl -o $(CRYPTO)/$(OPENSSL_FILE) https://www.openssl.org/source/$(OPENSSL_FILE)
-#	tar xzf $(CRYPTO)/$(OPENSSL_FILE) -C $(CRYPTO)
-#	rm -f $(CRYPTO)/$(OPENSSL_FILE)
+	curl -o $(CRYPTO)/$(OPENSSL_FILE) https://www.openssl.org/source/$(OPENSSL_FILE)
+	tar xzf $(CRYPTO)/$(OPENSSL_FILE) -C $(CRYPTO)
+	rm -f $(CRYPTO)/$(OPENSSL_FILE)
 
 .PHONY: download_mbedtls
 
 build_openssl:
 #	(cd $(CRYPTO)/$(OPENSSL_LIB) &&	./Configure --openssldir=openssl linux-x86_64 && ./config no-idea no-camellia no-bf no-cast no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 \
 # no-ripemd no-mdc2 no-dsa no-dh)
-	(cd $(CRYPTO)/$(OPENSSL_LIB) &&	mkdir -p library && ./Configure --openssldir=openssl linux-x86_64 && ./config no-rc2 && make depend)
+	(cd $(CRYPTO)/$(OPENSSL_LIB) && ./Configure --openssldir=openssl -DPURIFY linux-x86_64 && ./config no-rc2 && make depend)
 	(cd $(CRYPTO)/$(OPENSSL_LIB) && make && sudo make install_sw)
 	rm -f $(CRYPTO)/openssl
 	ln -s $(OPENSSL_LIB) $(CRYPTO)/openssl

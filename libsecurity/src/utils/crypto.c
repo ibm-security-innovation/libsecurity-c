@@ -104,18 +104,12 @@ int Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t inputLen, const unsigned 
       return -1;
     }
     outputLen = len;
-
-    output[outputLen] = 0;
-    printf("Ravid: mid newOutput '%s'\n", output);
-
     if(EVP_DecryptFinal_ex(ctx, output + len, &len) != 1) {
       snprintf(errStr, sizeof(errStr), "Crypto_EncryptDecryptAesCbc error when executing EVP_DecryptFinal_ex");
       return -1;
     }
-    printf("Ravid: output len %d, add len %d\n", outputLen, len);
     outputLen += len;
     output[outputLen] = 0;
-    // printf("Ravid: newOutput '%s'\n", output);
   }
   EVP_CIPHER_CTX_free(ctx);
   return outputLen;
