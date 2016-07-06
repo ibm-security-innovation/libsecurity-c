@@ -62,6 +62,32 @@ STATIC bool getLastLineOfFile(char *file, char *line, int16_t maxLen) {
   return ret;
 }
 
+STATIC bool testCrypto() {
+  int16_t i=0, len=0;
+  bool pass = true;
+  char text[NaCl_MAX_TEXT_LEN_BYTES+1];
+  unsigned char key[SECRET_LEN], iv[IV_LEN];
+  unsigned char encryptedText[NaCl_MAX_TEXT_LEN_BYTES+1];
+  unsigned char decryptedText[NaCl_MAX_TEXT_LEN_BYTES+1];
+
+  Crypto_Random(key, SECRET_LEN);
+  Crypto_Random(iv, IV_LEN);
+
+  strcpy(text, "");
+  for (i=0 ; i<NaCl_MAX_TEXT_LEN_BYTES ; i++) {
+    len = Crypto_EncryptDecryptAesCbc(CRYPTO_ENCRYPT_MODE, strlen(text), key, SECRET_LEN, iv, (unsigned char *)text, encryptedText);
+    len = Crypto_EncryptDecryptAesCbc(CRYPTO_DECRYPT_MODE, len, key, SECRET_LEN, iv, encryptedText, decryptedText);
+    if (len > 0)
+      decryptedText[len] = '\0';
+    if (len > 0 && memcmp(text, decryptedText, strlen(text)) != 0) {
+      printf("Error: test fail, original text '%s' != decrypted text '%s'\n", text, decryptedText);
+      pass = false;
+    }
+    strcat(text, "a");
+  }
+  return pass;
+}
+
 // Test if the password strength is as expected
 STATIC bool testPwdStrength() {
   int16_t i=0, len=0;
@@ -387,6 +413,7 @@ int main()
   char *res = NULL;
 
   Utils_TestFuncS callFunc[] = { 
+                                 { "testCrypto", testCrypto},
                                  { "testPwdStrength", testPwdStrength},
                                  { "testAbortCb", testAbortCb },
                                  { "testMyMalloc", testMyMalloc },

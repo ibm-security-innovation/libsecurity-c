@@ -31,7 +31,7 @@ else
 	if [ -n "$PURE" ]; then
 		 $EXE
 	else
-		valgrind --tool=memcheck --leak-check=full $EXE
+		valgrind --track-origins=yes --tool=memcheck --leak-check=full $EXE
 	fi
 fi
 

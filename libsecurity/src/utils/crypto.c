@@ -17,40 +17,32 @@ int Crypto_EncryptDecryptAesCbc(int16_t mode, uint16_t len, const unsigned char 
                                  const unsigned char *input, unsigned char *output) {
   int16_t textLen = len + Crypto_GetAesPadFactor(len), ret = -1;
   keyLen = keyLen << 3;
-  unsigned char *newText = NULL, *newOutput = NULL, *outputPtr = NULL;
+  unsigned char newOutput[NaCl_MAX_TEXT_LEN_BYTES+1];
+  unsigned char *outputPtr = NULL;
   unsigned char tmpIv[IV_LEN];
   mbedtls_aes_context ctx;
+
   mbedtls_aes_init(&ctx);
   if (mode == CRYPTO_ENCRYPT_MODE) {
     ret = mbedtls_aes_setkey_enc(&ctx, key, keyLen);
     outputPtr = output;
   } else {
     ret = mbedtls_aes_setkey_dec(&ctx, key, keyLen);
-    if (ret == 0)
-      Utils_Malloc((void **)(&newOutput), textLen + 1); // output length will be padded
-    // done by Utils_Malloc memset(newOutput, 0, textLen+1); // clear the memory
     outputPtr = newOutput;
   }
   if (ret != 0) {
     snprintf(errStr, sizeof(errStr), "Invalid key length %d, it must be 128, 192 or 256", (int16_t)keyLen * 8);
     return false;
   }
-  Utils_Malloc((void **)(&newText), textLen + 1);
-  // done by Utils_Malloc memset(newText, 0, textLen+1); // clear the memory
-  memcpy(newText, input, len);
   memcpy(tmpIv, iv, IV_LEN);
-  // not neded newText[len + 1] = 0;
-  if (mbedtls_aes_crypt_cbc(&ctx, mode, (size_t)(textLen), tmpIv, newText, outputPtr) != 0) {
+  if (mbedtls_aes_crypt_cbc(&ctx, mode, (size_t)(textLen), tmpIv, input, outputPtr) != 0) {
     snprintf(errStr, sizeof(errStr), "Invalid input length %d to encrypt, maximum length must be divided by 16", (int16_t)len);
-    Utils_Free(newText);
-    Utils_Free(newOutput);
     return false;
   }
   if (mode == CRYPTO_DECRYPT_MODE) { // the return must be the original length before padding
+    newOutput[len] = 0;
     memcpy(output, newOutput, len + 1);
   }
-  Utils_Free(newText);
-  Utils_Free(newOutput);
   return len;
 }
 
